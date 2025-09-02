@@ -6,8 +6,8 @@ parameters:
 	level: max
 
 	paths:
-		# - blocks/
-		# - entries/
+		- blocks/
+		- entries/
 		- src/
 		- wp-evergreen-posts.php
 
