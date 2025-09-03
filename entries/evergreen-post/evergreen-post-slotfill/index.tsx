@@ -8,17 +8,17 @@ import { PluginDocumentSettingPanel } from '@wordpress/editor';
 import { usePostMetaValue } from '@alleyinteractive/block-editor-tools';
 
 function EvergreenPost() {
-  const [evergreenUrl, setEvergreenUrl] = usePostMetaValue('evergreen_url');
+  const [evergreenPost, setEvergreenPost] = usePostMetaValue('evergreen_post');
 
   return (
     <PluginDocumentSettingPanel
-      name="evergreen-url"
-      title={__('Evergreen URL', 'wp-evergreen-posts')}
+      name="evergreen-post"
+      title={__('Evergreen Post', 'wp-evergreen-posts')}
     >
       <ToggleControl
         label={__('Remove date from URL', 'wp-evergreen-posts')}
-        onChange={() => setEvergreenUrl(!evergreenUrl)}
-        checked={evergreenUrl}
+        onChange={() => setEvergreenPost(!evergreenPost)}
+        checked={evergreenPost}
       />
     </PluginDocumentSettingPanel>
   );

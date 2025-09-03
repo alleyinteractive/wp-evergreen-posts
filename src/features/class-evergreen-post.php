@@ -1,6 +1,6 @@
 <?php
 /**
- * Feature implementation of Evergreen URLs
+ * Feature implementation of Evergreen Posts.
  *
  * @package wp-evergreen-posts
  */
@@ -11,16 +11,16 @@ use Alley\WP\Types\Feature;
 use Alley\WP\WP_Evergreen_Posts\Traits\Singleton;
 
 /**
- * Evergreen_URL feature class.
+ * Evergreen_Post feature class.
  */
-final class Evergreen_URL implements Feature {
+final class Evergreen_Post implements Feature {
 	use Singleton;
 
 	/**
 	 * Set up.
 	 *
 	 * @param array<string> $post_types The post types to enable.
-	 * @param string        $meta_key The evergreen url post meta key.
+	 * @param string        $meta_key The evergreen post meta key.
 	 * @param string        $path The redirect path.
 	 */
 	public function __construct(
@@ -55,7 +55,7 @@ final class Evergreen_URL implements Feature {
 
 	/**
 	 * Determine whether the post is an enabled post type and has
-	 * the evergreen URL toggle enabled.
+	 * the evergreen post toggle enabled.
 	 *
 	 * @param int $post_id Post ID.
 	 */
@@ -70,29 +70,31 @@ final class Evergreen_URL implements Feature {
 			return false;
 		}
 
-		$evergreen_url_meta = get_post_meta( $post_id, $this->meta_key, true );
+		$post_meta = get_post_meta( $post_id, $this->meta_key, true );
 
-		return in_array( $post_type, $this->post_types, true ) && ! empty( $evergreen_url_meta );
+		return in_array( $post_type, $this->post_types, true ) && ! empty( $post_meta );
 	}
 
 	/**
 	 * Register the post meta for evergreen posts.
 	 */
 	public function register_post_meta(): void {
-		register_post_meta(
-			'post',
-			'evergreen_url',
-			[
-				'show_in_rest'  => true,
-				'single'        => true,
-				'type'          => 'boolean',
-				'auth_callback' => fn() => current_user_can( 'edit_posts' ),
-			] 
-		);
+		foreach ( $this->post_types as $post_type ) {
+			register_post_meta(
+				$post_type,
+				$this->meta_key,
+				[
+					'show_in_rest'  => true,
+					'single'        => true,
+					'type'          => 'boolean',
+					'auth_callback' => fn() => current_user_can( 'edit_posts' ),
+				] 
+			);
+		}
 	}
 
 	/**
-	 * Add rewrite rule for evergreen URLs.
+	 * Add rewrite rule for evergreen posts.
 	 */
 	public function rewrite_rule(): void {
 		if ( empty( $this->path ) ) {
@@ -176,7 +178,7 @@ final class Evergreen_URL implements Feature {
 		 * Redirect the user to the evergreen URL.
 		 */
 		if ( $is_evergreen_post && empty( $is_evergreen_request ) ) {
-			wp_safe_redirect( $url, 301, 'Evergreen URL (WordPress)' );
+			wp_safe_redirect( $url, 301, 'Evergreen Post (WordPress)' );
 			exit;
 		}
 
@@ -185,7 +187,7 @@ final class Evergreen_URL implements Feature {
 		 * Redirect the user to the date-based URL.
 		 */
 		if ( empty( $is_evergreen_post ) && $is_evergreen_request ) {
-			wp_safe_redirect( $url, 301, 'Non-Evergreen URL (WordPress)' );
+			wp_safe_redirect( $url, 301, 'Non-Evergreen Post (WordPress)' );
 			exit;
 		}
 	}

@@ -2,6 +2,6 @@
   "core_term_meta": true,
   "domain": "wp-evergreen-posts",
   "folder": "src",
-  "namespace": "Create_WordPress_Plugin",
+  "namespace": "Alley\\WP\\WP_Evergreen_Posts",
   "require_path": "__DIR__"
 }

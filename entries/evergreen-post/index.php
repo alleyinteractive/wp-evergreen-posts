@@ -69,7 +69,7 @@ function wp_evergreen_posts_enqueue_evergreen_post_assets(): void {
 		return;
 	}
 
-	$evergreen_post_types = \Alley\WP\WP_Evergreen_Posts\Features\Evergreen_URL::instance()->get_post_types();
+	$evergreen_post_types = \Alley\WP\WP_Evergreen_Posts\Features\Evergreen_Post::instance()->get_post_types();
 
 	if ( ! empty( $screen->post_type ) && in_array( $screen->post_type, $evergreen_post_types, true ) ) {
 		wp_enqueue_script( 'wp-evergreen-posts-evergreen-post-js' );

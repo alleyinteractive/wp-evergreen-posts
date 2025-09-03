@@ -2,7 +2,7 @@
 /**
  * Trait file for Singletons.
  *
- * @package ES Admin
+ * @package wp-evergreen-posts
  */
 
 namespace Alley\WP\WP_Evergreen_Posts\Traits;

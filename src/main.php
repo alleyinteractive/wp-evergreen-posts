@@ -8,27 +8,27 @@
 namespace Alley\WP\WP_Evergreen_Posts;
 
 use Alley\WP\Features\Group;
-use Alley\WP\WP_Evergreen_Posts\Features\Evergreen_URL;
+use Alley\WP\WP_Evergreen_Posts\Features\Evergreen_Post;
 
 /**
  * Instantiate the plugin.
  */
 function main(): void {
 	$plugin = new Group(
-		initialize_evergreen_url_feature(),
+		initialize_evergreen_post_feature(),
 	);
 
 	$plugin->boot();
 }
 
 /**
- * Initialize the Evergreen_URL feature.
+ * Initialize the Evergreen_Post feature.
  *
- * @return Evergreen_URL The initialized feature.
+ * @return Evergreen_Post The initialized feature.
  */
-function initialize_evergreen_url_feature(): Evergreen_URL {
+function initialize_evergreen_post_feature(): Evergreen_Post {
 	/**
-	 * Filters the post types to enable evergreen URLs for.
+	 * Filters the post types to enable evergreen post functionality for.
 	 * 
 	 * @param array<string> $post_types The post types to enable. Default is ['post'].
 	 */
@@ -38,17 +38,17 @@ function initialize_evergreen_url_feature(): Evergreen_URL {
 	}
 
 	/**
-	 * Filters the post meta key to use for evergreen URLs.
+	 * Filters the post meta key to use for evergreen posts.
 	 * 
-	 * @param string $meta_key The evergreen url post meta key. Default is 'evergreen_url'.
+	 * @param string $meta_key The evergreen post meta key. Default is 'evergreen_post'.
 	 */
-	$meta_key = apply_filters( 'wp_evergreen_posts_meta_key', 'evergreen_url' );
+	$meta_key = apply_filters( 'wp_evergreen_posts_meta_key', 'evergreen_post' );
 	if ( ! is_string( $meta_key ) ) {
-		$meta_key = 'evergreen_url';
+		$meta_key = 'evergreen_post';
 	}
 
 	/**
-	 * Filters the redirect path for evergreen URLs.
+	 * Filters the redirect path for evergreen posts.
 	 * 
 	 * @param string $path The redirect path. Default is 'feature'.
 	 */
@@ -57,5 +57,5 @@ function initialize_evergreen_url_feature(): Evergreen_URL {
 		$path = 'feature';
 	}
 
-	return Evergreen_URL::instance( $post_types, $meta_key, $path );
+	return Evergreen_Post::instance( $post_types, $meta_key, $path );
 }

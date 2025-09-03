@@ -36,26 +36,26 @@ $plugin->perform_magic();
 ```
 
 ### Filters and default values
-By default, the feature is only enabled on `post` post types, the value of the toggle is stored in the `evergreen_url` meta key, and when toggled on, the post date is replaced with a hard-coded string `feature`, e.g. `https://example.com/2025/09/01/example-post` -> `https://example.com/feature/example-post`
+By default, the feature is only enabled on `post` post types, the value of the toggle is stored in the `evergreen_post` meta key, and when toggled on, the post date is replaced with a hard-coded string `feature`, e.g. `https://example.com/2025/09/01/example-post` -> `https://example.com/feature/example-post`
 
 These values can all be filtered:
 ```
 /**
- * Filters the post types to enable evergreen URLs for.
+ * Filters the post types to enable evergreen post functionality for.
  * 
  * @param array<string> $post_types The post types to enable. Default is ['post'].
  */
 $post_types = apply_filters( 'wp_evergreen_posts_post_types', [ 'post' ] );
 
 /**
- * Filters the post meta key to use for evergreen URLs.
+ * Filters the post meta key to use for evergreen posts.
  * 
- * @param string $meta_key The evergreen url post meta key. Default is 'evergreen_url'.
+ * @param string $meta_key The evergreen post meta key. Default is 'evergreen_post'.
  */
-$meta_key = apply_filters( 'wp_evergreen_posts_meta_key', 'evergreen_url' );
+$meta_key = apply_filters( 'wp_evergreen_posts_meta_key', 'evergreen_post' );
 
 /**
- * Filters the redirect path for evergreen URLs.
+ * Filters the redirect path for evergreen posts.
  * 
  * @param string $path The redirect path. Default is 'feature'.
  */
