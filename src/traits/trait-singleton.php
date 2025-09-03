@@ -22,7 +22,6 @@ trait Singleton {
 	 * Get class instance.
 	 *
 	 * @param mixed ...$args Arguments to pass to the constructor on first instantiation.
-	 * @return static
 	 */
 	public static function instance( ...$args ): static {
 		if ( ! isset( static::$instance ) ) {

@@ -33,11 +33,11 @@ final class Evergreen_URL implements Feature {
 	 * Boot the feature.
 	 */
 	public function boot(): void {
-		add_action( 'init', [ $this, 'register_post_meta' ] );
-		add_action( 'init', [ $this, 'rewrite_rule' ] );
-		add_filter( 'post_link', [ $this, 'modify_evergreen_url' ], 10, 2 );
-		add_filter( 'pre_post_link', [ $this, 'modify_evergreen_url' ], 10, 2 );
-		add_action( 'template_redirect', [ $this, 'redirect_to_canonical_url' ] );
+		add_action( 'init', $this->register_post_meta( ... ) );
+		add_action( 'init', $this->rewrite_rule( ... ) );
+		add_filter( 'post_link', $this->modify_evergreen_url( ... ), 10, 2 );
+		add_filter( 'pre_post_link', $this->modify_evergreen_url( ... ), 10, 2 );
+		add_action( 'template_redirect', $this->redirect_to_canonical_url( ... ) );
 	}
 
 	/**
@@ -46,7 +46,7 @@ final class Evergreen_URL implements Feature {
 	 * @return array<string>
 	 */
 	public function get_post_types(): array {
-		if ( empty( $this->post_types ) ) {
+		if ( $this->post_types === [] ) {
 			return [];
 		}
 
@@ -58,7 +58,6 @@ final class Evergreen_URL implements Feature {
 	 * the evergreen URL toggle enabled.
 	 *
 	 * @param int $post_id Post ID.
-	 * @return bool
 	 */
 	public function is_evergreen( int $post_id ): bool {
 		if ( empty( $this->meta_key ) || empty( $post_id ) ) {
@@ -73,8 +72,7 @@ final class Evergreen_URL implements Feature {
 
 		$evergreen_url_meta = get_post_meta( $post_id, $this->meta_key, true );
 
-		return in_array( $post_type, $this->post_types, true )
-			&& ! empty( $evergreen_url_meta );
+		return in_array( $post_type, $this->post_types, true ) && ! empty( $evergreen_url_meta );
 	}
 
 	/**
@@ -88,9 +86,7 @@ final class Evergreen_URL implements Feature {
 				'show_in_rest'  => true,
 				'single'        => true,
 				'type'          => 'boolean',
-				'auth_callback' => function () {
-					return current_user_can( 'edit_posts' );
-				},
+				'auth_callback' => fn() => current_user_can( 'edit_posts' ),
 			] 
 		);
 	}
@@ -115,17 +111,15 @@ final class Evergreen_URL implements Feature {
 	 *
 	 * @param string   $url The post url.
 	 * @param \WP_Post $post The post object.
-	 * @return string
 	 */
 	public function modify_evergreen_url( $url, $post ): string {
-		if (
-			! empty( $url )
+		if ( ! empty( $url )
 			&& in_array( $post->post_type, $this->post_types, true )
 			&& 'publish' === $post->post_status
 			&& $this->is_evergreen( $post->ID )
 			&& ! empty( $this->path )
 		) {
-			$url = trailingslashit( home_url( $this->path . '/' . $post->post_name ) );
+			return trailingslashit( home_url( $this->path . '/' . $post->post_name ) );
 		}
 
 		return $url;
@@ -136,7 +130,7 @@ final class Evergreen_URL implements Feature {
 	 */
 	public function redirect_to_canonical_url(): void {
 		if (
-			empty( $this->post_types )
+			$this->post_types === []
 			|| ! is_array( $this->post_types )
 			|| ! is_singular( $this->post_types )
 			|| is_preview()
@@ -175,7 +169,7 @@ final class Evergreen_URL implements Feature {
 
 		// Determine the redirect direction.
 		$is_evergreen_post    = $this->is_evergreen( $post_id );
-		$is_evergreen_request = str_starts_with( $wp->request, $this->path );
+		$is_evergreen_request = str_starts_with( (string) $wp->request, $this->path );
 
 		/**
 		 * The post is evergreen, and the request is for a date-based URL.
