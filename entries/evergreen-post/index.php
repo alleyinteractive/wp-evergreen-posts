@@ -47,7 +47,20 @@ function wp_evergreen_posts_register_evergreen_post_scripts(): void {
 		$version,
 		true
 	);
+
 	wp_set_script_translations( 'wp-evergreen-posts-evergreen-post-js', 'wp-evergreen-posts' );
+
+	// Get the meta key from the filter for use in the slotfill.
+	$meta_key = apply_filters( 'wp_evergreen_posts_meta_key', 'evergreen_post' );
+
+	// Add the meta key to the script as a localized variable.
+	wp_localize_script(
+		'wp-evergreen-posts-evergreen-post-js',
+		'wpEvergreenPostsConfig',
+		[
+			'metaKey' => $meta_key,
+		]
+	);
 }
 add_action( 'init', 'wp_evergreen_posts_register_evergreen_post_scripts' );
 

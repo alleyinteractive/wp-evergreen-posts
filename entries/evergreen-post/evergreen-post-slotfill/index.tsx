@@ -7,8 +7,13 @@ import { PluginDocumentSettingPanel } from '@wordpress/editor';
 // Hooks.
 import { usePostMetaValue } from '@alleyinteractive/block-editor-tools';
 
+declare const wpEvergreenPostsConfig: { metaKey: string };
+
 function EvergreenPost() {
-  const [evergreenPost, setEvergreenPost] = usePostMetaValue('evergreen_post');
+  // Get the meta field key from the filter in PHP.
+  const metaKey = typeof wpEvergreenPostsConfig !== 'undefined' ? wpEvergreenPostsConfig.metaKey : 'evergreen_post';
+
+  const [evergreenPost, setEvergreenPost] = usePostMetaValue(metaKey);
 
   return (
     <PluginDocumentSettingPanel
