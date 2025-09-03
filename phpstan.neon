@@ -11,6 +11,8 @@ parameters:
 		- src/
 		- wp-evergreen-posts.php
 
+	treatPhpDocTypesAsCertain: false
+
 #    ignoreErrors:
 #        - '#PHPDoc tag @var#'
 #

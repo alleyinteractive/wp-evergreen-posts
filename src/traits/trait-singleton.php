@@ -26,8 +26,7 @@ trait Singleton {
 	 */
 	public static function instance( ...$args ): static {
 		if ( ! isset( static::$instance ) ) {
-			/** @phpstan-ignore-next-line */
-			static::$instance = new static( ...$args );
+			static::$instance = new static( ...$args ); // @phpstan-ignore-line
 			static::$instance->setup();
 		}
 		return static::$instance;

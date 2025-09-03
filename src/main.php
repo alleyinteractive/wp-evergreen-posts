@@ -21,6 +21,11 @@ function main(): void {
 	$plugin->boot();
 }
 
+/**
+ * Initialize the Evergreen_URL feature.
+ *
+ * @return Evergreen_URL The initialized feature.
+ */
 function initialize_evergreen_url_feature(): Evergreen_URL {
 	/**
 	 * Filters the post types to enable evergreen URLs for.
@@ -47,7 +52,7 @@ function initialize_evergreen_url_feature(): Evergreen_URL {
 	 * 
 	 * @param string $path The redirect path. Default is 'feature'.
 	 */
-	$path     = apply_filters( 'wp_evergreen_posts_path', 'feature' );
+	$path = apply_filters( 'wp_evergreen_posts_path', 'feature' );
 	if ( ! is_string( $path ) ) {
 		$path = 'feature';
 	}

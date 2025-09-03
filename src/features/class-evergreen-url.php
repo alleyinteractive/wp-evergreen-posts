@@ -37,7 +37,7 @@ final class Evergreen_URL implements Feature {
 		add_action( 'init', [ $this, 'rewrite_rule' ] );
 		add_filter( 'post_link', [ $this, 'modify_evergreen_url' ], 10, 2 );
 		add_filter( 'pre_post_link', [ $this, 'modify_evergreen_url' ], 10, 2 );
-		add_action( 'template_redirect', [ $this, 'canonical_url_redirect' ] );
+		add_action( 'template_redirect', [ $this, 'redirect_to_canonical_url' ] );
 	}
 
 	/**
@@ -54,6 +54,30 @@ final class Evergreen_URL implements Feature {
 	}
 
 	/**
+	 * Determine whether the post is an enabled post type and has
+	 * the evergreen URL toggle enabled.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return bool
+	 */
+	public function is_evergreen( int $post_id ): bool {
+		if ( empty( $this->meta_key ) || empty( $post_id ) ) {
+			return false;
+		}
+
+		$post_type = get_post_type( $post_id );
+
+		if ( empty( $post_type ) ) {
+			return false;
+		}
+
+		$evergreen_url_meta = get_post_meta( $post_id, $this->meta_key, true );
+
+		return in_array( $post_type, $this->post_types, true )
+			&& ! empty( $evergreen_url_meta );
+	}
+
+	/**
 	 * Register the post meta for evergreen posts.
 	 */
 	public function register_post_meta(): void {
@@ -64,7 +88,7 @@ final class Evergreen_URL implements Feature {
 				'show_in_rest'  => true,
 				'single'        => true,
 				'type'          => 'boolean',
-				'auth_callback' => function() {
+				'auth_callback' => function () {
 					return current_user_can( 'edit_posts' );
 				},
 			] 
@@ -108,36 +132,9 @@ final class Evergreen_URL implements Feature {
 	}
 
 	/**
-	 * Determine whether the post is an enabled post type and has
-	 * the evergreen URL toggle enabled.
-	 *
-	 * @param int $post_id Post ID.
-	 * @return bool
+	 * Redirect to the canonical URL if the current URL does not match.
 	 */
-	public function is_evergreen( int $post_id ): bool {
-		if ( empty( $this->meta_key ) || empty( $post_id ) ) {
-			return false;
-		}
-
-		$post_type = get_post_type( $post_id );
-
-		if ( empty( $post_type ) ) {
-			return false;
-		}
-
-		$evergreen_url_meta = get_post_meta( $post_id, $this->meta_key, true );
-
-		return in_array( $post_type, $this->post_types, true )
-			&& ! empty( $evergreen_url_meta );
-	}
-
-	/**
-	 * Removing the date from the URL doesn't invalidate the standard date-based URL format.
-	 *
-	 * For SEO, requests for the date based URL should be redirected to the evergreen URL.
-	 * This makes sure that happens by checking the request URI and comparing it to the canonical URL.
-	 */
-	public function canonical_url_redirect(): void {
+	public function redirect_to_canonical_url(): void {
 		if (
 			empty( $this->post_types )
 			|| ! is_array( $this->post_types )
