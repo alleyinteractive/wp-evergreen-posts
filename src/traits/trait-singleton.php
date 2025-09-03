@@ -1,0 +1,42 @@
+<?php
+/**
+ * Trait file for Singletons.
+ *
+ * @package ES Admin
+ */
+
+namespace Alley\WP\WP_Evergreen_Posts\Traits;
+
+/**
+ * Make a class into a singleton.
+ */
+trait Singleton {
+	/**
+	 * Existing instance.
+	 *
+	 * @var static|null
+	 */
+	protected static $instance;
+
+	/**
+	 * Get class instance.
+	 *
+	 * @param mixed ...$args Arguments to pass to the constructor on first instantiation.
+	 * @return static
+	 */
+	public static function instance( ...$args ): static {
+		if ( ! isset( static::$instance ) ) {
+			/** @phpstan-ignore-next-line */
+			static::$instance = new static( ...$args );
+			static::$instance->setup();
+		}
+		return static::$instance;
+	}
+
+	/**
+	 * Setup the singleton.
+	 */
+	public function setup(): void {
+		// Silence.
+	}
+}

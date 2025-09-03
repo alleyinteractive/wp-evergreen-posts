@@ -1,0 +1,201 @@
+<?php
+/**
+ * Feature implementation of Evergreen URLs
+ *
+ * @package wp-evergreen-posts
+ */
+
+namespace Alley\WP\WP_Evergreen_Posts\Features;
+
+use Alley\WP\Types\Feature;
+use Alley\WP\WP_Evergreen_Posts\Traits\Singleton;
+
+/**
+ * Evergreen_URL feature class.
+ */
+final class Evergreen_URL implements Feature {
+	use Singleton;
+
+	/**
+	 * Set up.
+	 *
+	 * @param array<string> $post_types The post types to enable.
+	 * @param string        $meta_key The evergreen url post meta key.
+	 * @param string        $path The redirect path.
+	 */
+	public function __construct(
+		private readonly array $post_types = [],
+		private readonly string $meta_key = '',
+		private readonly string $path = '',
+	) {}
+
+	/**
+	 * Boot the feature.
+	 */
+	public function boot(): void {
+		add_action( 'init', [ $this, 'register_post_meta' ] );
+		add_action( 'init', [ $this, 'rewrite_rule' ] );
+		add_filter( 'post_link', [ $this, 'modify_evergreen_url' ], 10, 2 );
+		add_filter( 'pre_post_link', [ $this, 'modify_evergreen_url' ], 10, 2 );
+		add_action( 'template_redirect', [ $this, 'canonical_url_redirect' ] );
+	}
+
+	/**
+	 * Get the post types.
+	 * 
+	 * @return array<string>
+	 */
+	public function get_post_types(): array {
+		if ( empty( $this->post_types ) ) {
+			return [];
+		}
+
+		return $this->post_types;
+	}
+
+	/**
+	 * Register the post meta for evergreen posts.
+	 */
+	public function register_post_meta(): void {
+		register_post_meta(
+			'post',
+			'evergreen_url',
+			[
+				'show_in_rest'  => true,
+				'single'        => true,
+				'type'          => 'boolean',
+				'auth_callback' => function() {
+					return current_user_can( 'edit_posts' );
+				},
+			] 
+		);
+	}
+
+	/**
+	 * Add rewrite rule for evergreen URLs.
+	 */
+	public function rewrite_rule(): void {
+		if ( empty( $this->path ) ) {
+			return;
+		}
+
+		add_rewrite_rule(
+			'^' . $this->path . '/([^/]+)/?$',
+			'index.php?name=$matches[1]',
+			'top'
+		);
+	}
+
+	/**
+	 * Modify the url for evergreen posts.
+	 *
+	 * @param string   $url The post url.
+	 * @param \WP_Post $post The post object.
+	 * @return string
+	 */
+	public function modify_evergreen_url( $url, $post ): string {
+		if (
+			! empty( $url )
+			&& in_array( $post->post_type, $this->post_types, true )
+			&& 'publish' === $post->post_status
+			&& $this->is_evergreen( $post->ID )
+			&& ! empty( $this->path )
+		) {
+			$url = trailingslashit( home_url( $this->path . '/' . $post->post_name ) );
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Determine whether the post is an enabled post type and has
+	 * the evergreen URL toggle enabled.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return bool
+	 */
+	public function is_evergreen( int $post_id ): bool {
+		if ( empty( $this->meta_key ) || empty( $post_id ) ) {
+			return false;
+		}
+
+		$post_type = get_post_type( $post_id );
+
+		if ( empty( $post_type ) ) {
+			return false;
+		}
+
+		$evergreen_url_meta = get_post_meta( $post_id, $this->meta_key, true );
+
+		return in_array( $post_type, $this->post_types, true )
+			&& ! empty( $evergreen_url_meta );
+	}
+
+	/**
+	 * Removing the date from the URL doesn't invalidate the standard date-based URL format.
+	 *
+	 * For SEO, requests for the date based URL should be redirected to the evergreen URL.
+	 * This makes sure that happens by checking the request URI and comparing it to the canonical URL.
+	 */
+	public function canonical_url_redirect(): void {
+		if (
+			empty( $this->post_types )
+			|| ! is_array( $this->post_types )
+			|| ! is_singular( $this->post_types )
+			|| is_preview()
+		) {
+			return;
+		}
+
+		/**
+		 * The global WordPress object.
+		 *
+		 * @var \WP $wp
+		 */
+		global $wp;
+
+		// Get the current request URL.
+		$request_url = home_url( trailingslashit( $wp->request ) );
+
+		// Get the current post ID.
+		$post_id = get_the_ID();
+
+		if ( empty( $post_id ) ) {
+			return;
+		}
+
+		// Get the current post URL.
+		$url = get_the_permalink( $post_id );
+
+		if ( empty( $url ) ) {
+			return;
+		}
+
+		// If the URLs match, no redirect is needed.
+		if ( $url === $request_url ) {
+			return;
+		}
+
+		// Determine the redirect direction.
+		$is_evergreen_post    = $this->is_evergreen( $post_id );
+		$is_evergreen_request = str_starts_with( $wp->request, $this->path );
+
+		/**
+		 * The post is evergreen, and the request is for a date-based URL.
+		 * Redirect the user to the evergreen URL.
+		 */
+		if ( $is_evergreen_post && empty( $is_evergreen_request ) ) {
+			wp_safe_redirect( $url, 301, 'Evergreen URL (WordPress)' );
+			exit;
+		}
+
+		/**
+		 * The post is not evergreen, and the request is for an evergreen URL.
+		 * Redirect the user to the date-based URL.
+		 */
+		if ( empty( $is_evergreen_post ) && $is_evergreen_request ) {
+			wp_safe_redirect( $url, 301, 'Non-Evergreen URL (WordPress)' );
+			exit;
+		}
+	}
+}

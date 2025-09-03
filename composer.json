@@ -35,6 +35,7 @@
   },
   "autoload-dev": {
     "psr-4": {
+      "Alley\\WP\\WP_Evergreen_Posts\\": "src",
       "Alley\\WP\\WP_Evergreen_Posts\\Tests\\": "tests"
     }
   },
