@@ -4,7 +4,7 @@ Contributors: alleyinteractive
 
 Tags: alleyinteractive, wp-evergreen-posts
 
-Stable tag: 0.0.0
+Stable tag: 1.0.0
 
 Requires at least: 6.3
 
@@ -16,7 +16,7 @@ License: GPL v2 or later
 
 [![Testing Suite](https://github.com/alleyinteractive/wp-evergreen-posts/actions/workflows/all-pr-tests.yml/badge.svg?branch=develop)](https://github.com/alleyinteractive/wp-evergreen-posts/actions/workflows/all-pr-tests.yml)
 
-WordPress plugin for removing the date from post URLs.
+This WordPress plugin provides editors with a post admin toggle that allows them to remove dates from posts, creating "evergreen" posts.
 
 ## Installation
 
@@ -33,6 +33,33 @@ Activate the plugin in WordPress and use it like so:
 ```php
 $plugin = Create_WordPress_Plugin\WP_Evergreen_Posts\WP_Evergreen_Posts();
 $plugin->perform_magic();
+```
+
+### Filters and default values
+By default, the feature is only enabled on `post` post types, the value of the toggle is stored in the `evergreen_url` meta key, and when toggled on, the post date is replaced with a hard-coded string `feature`, e.g. `https://example.com/2025/09/01/example-post` -> `https://example.com/feature/example-post`
+
+These values can all be filtered:
+```
+/**
+ * Filters the post types to enable evergreen URLs for.
+ * 
+ * @param array<string> $post_types The post types to enable. Default is ['post'].
+ */
+$post_types = apply_filters( 'wp_evergreen_posts_post_types', [ 'post' ] );
+
+/**
+ * Filters the post meta key to use for evergreen URLs.
+ * 
+ * @param string $meta_key The evergreen url post meta key. Default is 'evergreen_url'.
+ */
+$meta_key = apply_filters( 'wp_evergreen_posts_meta_key', 'evergreen_url' );
+
+/**
+ * Filters the redirect path for evergreen URLs.
+ * 
+ * @param string $path The redirect path. Default is 'feature'.
+ */
+$path = apply_filters( 'wp_evergreen_posts_path', 'feature' );
 ```
 
 ## Development

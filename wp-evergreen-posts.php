@@ -3,7 +3,7 @@
  * Plugin Name: WP Evergreen Posts
  * Plugin URI: https://github.com/alleyinteractive/wp-evergreen-posts
  * Description: WordPress plugin for removing the date from post URLs
- * Version: 0.0.0
+ * Version: 1.0.0
  * Author: Alley
  * Author URI: https://github.com/alleyinteractive/wp-evergreen-posts
  * Requires at least: 5.9
