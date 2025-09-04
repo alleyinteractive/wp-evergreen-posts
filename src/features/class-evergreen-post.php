@@ -79,7 +79,7 @@ final class Evergreen_Post implements Feature {
 	/**
 	 * Register the post meta for evergreen posts.
 	 */
-	public function register_post_meta(): void {
+	private function register_post_meta(): void {
 		foreach ( $this->post_types as $post_type ) {
 			register_post_meta(
 				$post_type,
@@ -97,7 +97,7 @@ final class Evergreen_Post implements Feature {
 	/**
 	 * Add rewrite rule for evergreen posts.
 	 */
-	public function rewrite_rule(): void {
+	private function rewrite_rule(): void {
 		if ( empty( $this->path ) ) {
 			return;
 		}
@@ -116,7 +116,7 @@ final class Evergreen_Post implements Feature {
 	 * @param \WP_Post $post The post object.
 	 * @return string The modified url.
 	 */
-	public function modify_evergreen_url( $url, $post ): string {
+	private function modify_evergreen_url( $url, $post ): string {
 		if ( ! empty( $url )
 			&& in_array( $post->post_type, $this->post_types, true )
 			&& 'publish' === $post->post_status
@@ -132,7 +132,7 @@ final class Evergreen_Post implements Feature {
 	/**
 	 * Redirect to the canonical URL if the current URL does not match.
 	 */
-	public function redirect_to_canonical_url(): void {
+	private function redirect_to_canonical_url(): void {
 		if (
 			$this->post_types === []
 			|| ! is_array( $this->post_types )
