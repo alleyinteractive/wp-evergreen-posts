@@ -28,12 +28,7 @@ composer require alleyinteractive/wp-evergreen-posts
 
 ## Usage
 
-Activate the plugin in WordPress and use it like so:
-
-```php
-$plugin = Create_WordPress_Plugin\WP_Evergreen_Posts\WP_Evergreen_Posts();
-$plugin->perform_magic();
-```
+Activate the plugin in WordPress.
 
 ### Filters and default values
 By default, the feature is only enabled on `post` post types, the value of the toggle is stored in the `evergreen_post` meta key, and when toggled on, the post date is replaced with a hard-coded string `feature`, e.g. `https://example.com/2025/09/01/example-post` -> `https://example.com/feature/example-post`
