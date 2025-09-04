@@ -43,7 +43,7 @@ final class Evergreen_Post implements Feature {
 	/**
 	 * Get the post types.
 	 * 
-	 * @return array<string>
+	 * @return array<string> The post types.
 	 */
 	public function get_post_types(): array {
 		if ( $this->post_types === [] ) {
@@ -58,6 +58,7 @@ final class Evergreen_Post implements Feature {
 	 * the evergreen post toggle enabled.
 	 *
 	 * @param int $post_id Post ID.
+	 * @return bool True if the post is an evergreen post, false otherwise.
 	 */
 	public function is_evergreen( int $post_id ): bool {
 		if ( empty( $this->meta_key ) || empty( $post_id ) ) {
@@ -113,6 +114,7 @@ final class Evergreen_Post implements Feature {
 	 *
 	 * @param string   $url The post url.
 	 * @param \WP_Post $post The post object.
+	 * @return string The modified url.
 	 */
 	public function modify_evergreen_url( $url, $post ): string {
 		if ( ! empty( $url )
