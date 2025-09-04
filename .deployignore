@@ -3,7 +3,6 @@
 .phpcs
 .phpcs.xml
 .phpunit.result.cache
-.scaffolder
 .scoper
 .wp-env.json
 *.sql
