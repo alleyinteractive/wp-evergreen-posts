@@ -55,4 +55,5 @@ return RectorConfig::configure()
 	 */
 	->withSkip( [
 		Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector::class,
+		Rector\DeadCode\Rector\Property\RemoveUselessVarTagRector::class,
 	] );

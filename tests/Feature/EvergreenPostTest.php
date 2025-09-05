@@ -84,7 +84,7 @@ class EvergreenPostTest extends TestCase {
 	/**
 	 * Test that get_post_types returns the configured post types.
 	 */
-	public function test_get_post_types_returns_configured_types() {
+	public function test_get_post_types_returns_configured_types(): void {
 		// Get the post types.
 		$post_types = $this->feature->get_post_types();
 
@@ -94,7 +94,7 @@ class EvergreenPostTest extends TestCase {
 	/**
 	 * Test that get_post_types returns an empty array when no post types are set.
 	 */
-	public function test_get_post_types_returns_empty_array_when_none_set() {
+	public function test_get_post_types_returns_empty_array_when_none_set(): void {
 		// Set up the feature with an empty post types array.
 		$feature = new Evergreen_Post(
 			[],
@@ -111,7 +111,7 @@ class EvergreenPostTest extends TestCase {
 	/**
 	 * Test that the is_evergreen method returns false for empty meta key.
 	 */
-	public function test_is_evergreen_returns_false_for_empty_meta_key() {
+	public function test_is_evergreen_returns_false_for_empty_meta_key(): void {
 		// Set up the feature with an empty meta key.
 		$feature = new Evergreen_Post(
 			$this->post_types,
@@ -128,7 +128,7 @@ class EvergreenPostTest extends TestCase {
 	/**
 	 * Test that the is_evergreen method returns false for empty post ID.
 	 */
-	public function test_is_evergreen_returns_false_for_empty_post_id() {
+	public function test_is_evergreen_returns_false_for_empty_post_id(): void {
 		// Call is_evergreen with an invalid post ID.
 		$is_evergreen = $this->feature->is_evergreen( 0 );
 
@@ -138,7 +138,7 @@ class EvergreenPostTest extends TestCase {
 	/**
 	 * Test that the is_evergreen method returns false for an invalid post type.
 	 */
-	public function test_is_evergreen_returns_false_for_invalid_post_type() {
+	public function test_is_evergreen_returns_false_for_invalid_post_type(): void {
 		// Create a post with an invalid post type.
 		$post_id = $this->factory()->post->create(
 			[
@@ -158,7 +158,7 @@ class EvergreenPostTest extends TestCase {
 	/**
 	 * Test that the is_evergreen method returns false for draft post.
 	 */
-	public function test_is_evergreen_returns_false_for_draft_post() {
+	public function test_is_evergreen_returns_false_for_draft_post(): void {
 		// Create a draft post.
 		$post_id = $this->factory()->post->create(
 			[
@@ -178,7 +178,7 @@ class EvergreenPostTest extends TestCase {
 	/**
 	 * Test that the is_evergreen method returns false for false meta key.
 	 */
-	public function test_is_evergreen_returns_false_for_false_meta_key() {
+	public function test_is_evergreen_returns_false_for_false_meta_key(): void {
 		// Set the meta key to false.
 		add_post_meta( $this->post->ID, $this->meta_key, false );
 
@@ -190,7 +190,7 @@ class EvergreenPostTest extends TestCase {
 	/**
 	 * Test that the is_evergreen method returns false for missing meta key.
 	 */
-	public function test_is_evergreen_returns_false_for_missing_meta_key() {
+	public function test_is_evergreen_returns_false_for_missing_meta_key(): void {
 		// Delete the post meta.
 		delete_post_meta( $this->post->ID, $this->meta_key );
 
@@ -203,7 +203,7 @@ class EvergreenPostTest extends TestCase {
 	 * Test that the is_evergreen method returns true when the post type is valid
 	 * and the meta key indicates it's an evergreen post.
 	 */
-	public function test_is_evergreen_returns_true_when_post_type_and_meta_match() {
+	public function test_is_evergreen_returns_true_when_post_type_and_meta_match(): void {
 		// Set the post meta key to true.
 		add_post_meta( $this->post->ID, $this->meta_key, true );
 	
@@ -217,7 +217,7 @@ class EvergreenPostTest extends TestCase {
 	 * Test that get_permalink returns the modified URL when the post
 	 * is an evergreen post.
 	 */
-	public function test_get_permalink_for_evergreen_post() {
+	public function test_get_permalink_for_evergreen_post(): void {
 		// Set the meta key to true.
 		add_post_meta( $this->post->ID, $this->meta_key, true );
 
@@ -231,7 +231,7 @@ class EvergreenPostTest extends TestCase {
 	 * Test that get_permalink returns the original URL when the post
 	 * is not an evergreen post.
 	 */
-	public function test_get_permalink_for_non_evergreen_post() {
+	public function test_get_permalink_for_non_evergreen_post(): void {
 		// Set the meta key to false.
 		add_post_meta( $this->post->ID, $this->meta_key, false );
 
