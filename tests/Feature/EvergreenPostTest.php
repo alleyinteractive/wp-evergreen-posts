@@ -43,32 +43,50 @@ class EvergreenPostTest extends TestCase {
 	private string $path = 'feature';
 
 	/**
-	 * The post ID to be used in tests.
-	 *
-	 * @var int
+	 * The post object.
+	 * 
+	 * @var \WP_Post
 	 */
-	private int $post_id = 1;
+	private \WP_Post $post;
 
 	/**
-	 * The non-evergreen post URL to be used in tests.
-	 *
+	 * The evergreen post URL to be used in tests.
+	 * 
 	 * @var string
 	 */
-	private string $post_url = 'http://example.com/2025/09/01/test-post/';
+	private string $post_url_evergreen = '';
 
 	/**
-	 * Test that get_post_types returns the configured post types.
+	 * Set up the feature instance for tests.
 	 */
-	public function test_get_post_types_returns_configured_types() {
-		// Set up the feature with the configured post types.
-		$feature = new Evergreen_Post(
+	protected function setUp(): void {
+		parent::setUp();
+		$this->feature = new Evergreen_Post(
 			$this->post_types,
 			$this->meta_key,
 			$this->path,
 		);
 
+		// Create a post with a valid post type.
+		$this->post = $this->factory()->post->create_and_get(
+			[
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+				'post_name'   => 'test-post',
+			]
+		);
+
+		// Set the expected evergreen post URL.
+		$this->post_url_evergreen = trailingslashit( home_url( $this->path . '/test-post' ) );
+	}
+
+	/**
+	 * Test that get_post_types returns the configured post types.
+	 */
+	public function test_get_post_types_returns_configured_types() {
 		// Get the post types.
-		$post_types = $feature->get_post_types();
+		$post_types = $this->feature->get_post_types();
 
 		$this->assertSame( $this->post_types, $post_types );
 	}
@@ -102,7 +120,7 @@ class EvergreenPostTest extends TestCase {
 		);
 
 		// Call is_evergreen with a valid post ID.
-		$is_evergreen = $feature->is_evergreen( $this->post_id );
+		$is_evergreen = $feature->is_evergreen( $this->post->ID );
 
 		$this->assertFalse( $is_evergreen );
 	}
@@ -111,30 +129,16 @@ class EvergreenPostTest extends TestCase {
 	 * Test that the is_evergreen method returns false for empty post ID.
 	 */
 	public function test_is_evergreen_returns_false_for_empty_post_id() {
-		// Set up the feature with valid post types and meta key.
-		$feature = new Evergreen_Post(
-			$this->post_types,
-			$this->meta_key,
-			$this->path,
-		);
-
 		// Call is_evergreen with an invalid post ID.
-		$is_evergreen = $feature->is_evergreen( 0 );
+		$is_evergreen = $this->feature->is_evergreen( 0 );
 
 		$this->assertFalse( $is_evergreen );
 	}
 
 	/**
-	 * Test that the is_evergreen method returns false for invalid post type.
+	 * Test that the is_evergreen method returns false for an invalid post type.
 	 */
 	public function test_is_evergreen_returns_false_for_invalid_post_type() {
-		// Set up the feature with valid post types and meta key.
-		$feature = new Evergreen_Post(
-			$this->post_types,
-			$this->meta_key,
-			$this->path,
-		);
-
 		// Create a post with an invalid post type.
 		$post_id = $this->factory()->post->create(
 			[
@@ -146,7 +150,7 @@ class EvergreenPostTest extends TestCase {
 		);
 
 		// Call is_evergreen with the post ID.
-		$is_evergreen = $feature->is_evergreen( $post_id );
+		$is_evergreen = $this->feature->is_evergreen( $post_id );
 
 		$this->assertFalse( $is_evergreen );
 	}
@@ -155,13 +159,6 @@ class EvergreenPostTest extends TestCase {
 	 * Test that the is_evergreen method returns false for draft post.
 	 */
 	public function test_is_evergreen_returns_false_for_draft_post() {
-		// Set up the feature with valid post types and meta key.
-		$feature = new Evergreen_Post(
-			$this->post_types,
-			$this->meta_key,
-			$this->path,
-		);
-
 		// Create a draft post.
 		$post_id = $this->factory()->post->create(
 			[
@@ -173,42 +170,31 @@ class EvergreenPostTest extends TestCase {
 		);
 
 		// Call is_evergreen with the post ID.
-		$is_evergreen = $feature->is_evergreen( $post_id );
+		$is_evergreen = $this->feature->is_evergreen( $post_id );
 
 		$this->assertFalse( $is_evergreen );
 	}
 
 	/**
-	 * Test that the is_evergreen method returns false for empty meta key.
+	 * Test that the is_evergreen method returns false for false meta key.
 	 */
-	public function test_is_evergreen_returns_false_for_empty_or_false_meta_key() {
-		// Set up the feature with valid post types and meta key.
-		$feature = new Evergreen_Post(
-			$this->post_types,
-			$this->meta_key,
-			$this->path,
-		);
-
-		// Create a post with a valid post type.
-		$post_id = $this->factory()->post->create(
-			[
-				'post_title'  => 'Test Post',
-				'post_status' => 'publish',
-				'post_type'   => 'post',
-				'post_name'   => 'test-post',
-			]
-		);
-
-		// Call is_evergreen with the post ID.
-		$is_evergreen = $feature->is_evergreen( $post_id );
-
+	public function test_is_evergreen_returns_false_for_false_meta_key() {
 		// Set the meta key to false.
-		add_post_meta( $post_id, $this->meta_key, false );
+		add_post_meta( $this->post->ID, $this->meta_key, false );
+
+		$is_evergreen = $this->feature->is_evergreen( $this->post->ID );
 
 		$this->assertFalse( $is_evergreen );
+	}
 
-		// Call is_evergreen again to check for false meta value.
-		$is_evergreen = $feature->is_evergreen( $post_id );
+	/**
+	 * Test that the is_evergreen method returns false for missing meta key.
+	 */
+	public function test_is_evergreen_returns_false_for_missing_meta_key() {
+		// Delete the post meta.
+		delete_post_meta( $this->post->ID, $this->meta_key );
+
+		$is_evergreen = $this->feature->is_evergreen( $this->post->ID );
 
 		$this->assertFalse( $is_evergreen );
 	}
@@ -218,110 +204,40 @@ class EvergreenPostTest extends TestCase {
 	 * and the meta key indicates it's an evergreen post.
 	 */
 	public function test_is_evergreen_returns_true_when_post_type_and_meta_match() {
-		// Set up the feature with valid post types and meta key.
-		$feature = new Evergreen_Post(
-			$this->post_types,
-			$this->meta_key,
-			$this->path,
-		);
-
-		// Create a post with a valid post type.
-		$post_id = $this->factory()->post->create(
-			[
-				'post_title'  => 'Test Post',
-				'post_status' => 'publish',
-				'post_type'   => 'post',
-				'post_name'   => 'test-post',
-			]
-		);
-		
-		// Set the meta key to true.
-		add_post_meta( $post_id, $this->meta_key, true );
+		// Set the post meta key to true.
+		add_post_meta( $this->post->ID, $this->meta_key, true );
 	
 		// Call is_evergreen with the post ID.
-		$is_evergreen = $feature->is_evergreen( $post_id );
+		$is_evergreen = $this->feature->is_evergreen( $this->post->ID );
 
 		$this->assertTrue( $is_evergreen );
 	}
 
 	/**
-	 * Test that the modify_evergreen_url method returns the modified URL
-	 * when the post is an evergreen post.
+	 * Test that get_permalink returns the modified URL when the post
+	 * is an evergreen post.
 	 */
-	public function test_modify_evergreen_url_returns_modified_url_for_evergreen_post() {
-		// Set up the feature with valid post types and meta key.
-		$feature = new Evergreen_Post(
-			$this->post_types,
-			$this->meta_key,
-			$this->path,
-		);
-
-		// Create a post with a valid post type.
-		$post_id = $this->factory()->post->create(
-			[
-				'post_title'  => 'Test Post',
-				'post_status' => 'publish',
-				'post_type'   => 'post',
-				'post_name'   => 'test-post',
-			]
-		);
-
+	public function test_get_permalink_for_evergreen_post() {
 		// Set the meta key to true.
-		add_post_meta( $post_id, $this->meta_key, true );
+		add_post_meta( $this->post->ID, $this->meta_key, true );
 
-		// Get the post object.
-		$post = get_post( $post_id );
+		// Get the post URL.
+		$post_url = get_permalink( $this->post->ID );
 
-		// Access the private method using reflection.
-		$reflection           = new \ReflectionClass( $feature );
-		$modify_evergreen_url = $reflection->getMethod( 'modify_evergreen_url' );
-		$modify_evergreen_url->setAccessible( true );
-
-		// Modify the URL.
-		$modified_url = $modify_evergreen_url->invoke( $feature, $this->post_url, $post );
-
-		// Replace the date portion with the expected path.
-		$evergreen_url = str_replace( '2025/09/01', $this->path, $modified_url );
-
-		$this->assertSame( $evergreen_url, $modified_url );
+		$this->assertSame( $this->post_url_evergreen, $post_url );
 	}
 
 	/**
-	 * Test that the modify_evergreen_url method returns the original URL
-	 * when the post is not an evergreen post.
+	 * Test that get_permalink returns the original URL when the post
+	 * is not an evergreen post.
 	 */
-	public function test_modify_evergreen_url_returns_original_url_when_not_evergreen() {
-		// Set up the feature with valid post types and meta key.
-		$feature = new Evergreen_Post(
-			$this->post_types,
-			$this->meta_key,
-			$this->path,
-		);
+	public function test_get_permalink_for_non_evergreen_post() {
+		// Set the meta key to false.
+		add_post_meta( $this->post->ID, $this->meta_key, false );
 
-		// Create a post with a valid post type.
-		$post_id = $this->factory()->post->create(
-			[
-				'post_title'  => 'Test Post',
-				'post_status' => 'publish',
-				'post_type'   => 'post',
-				'post_name'   => 'test-post',
-			]
-		);
+		// Get the post URL.
+		$post_url = get_permalink( $this->post->ID );
 
-		// Get the post object.
-		$post = get_post( $post_id );
-
-		// Access the private method using reflection.
-		$reflection           = new \ReflectionClass( $feature );
-		$modify_evergreen_url = $reflection->getMethod( 'modify_evergreen_url' );
-		$modify_evergreen_url->setAccessible( true );
-
-		// Modify the URL.
-		$modified_url = $modify_evergreen_url->invoke( $feature, $this->post_url, $post );
-
-		// Replace the date portion with the expected path.
-		$evergreen_url = str_replace( '2025/09/01', $this->path, $modified_url );
-
-		$this->assertNotSame( $evergreen_url, $modified_url );
+		$this->assertNotSame( $this->post_url_evergreen, $post_url );
 	}
 }
